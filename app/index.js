@@ -26,8 +26,8 @@ const user = {
 }
 
 
-//Giriş servisi
-//Buraya istek atıldığında işlenecek veriler.
+
+//Giriş yapma işlemi; Access & Refresh Tokenlerinin oluşturulma işlemi
 app.post("/login", async (req, res) => {
 
     //gelen isteğin body'sinden verileri çekip değişkenlere aktarır.
@@ -40,6 +40,12 @@ app.post("/login", async (req, res) => {
         const secretKey = process.env.ACCESS_TOKEN_SECRET
         //30 saniye geçerli olacak bir token oluşturuldu. Veritabanından gelen değer token key'lerine atandı.
         const accessToken = jwt.sign(payload,secretKey,{expiresIn:"30s"});
+        //jwt.io üzerinden oluşan tokene bakabilirsin. Bilgileri gösterecektir.
+
+        const secretKey2 = process.env.REFRESH_TOKEN_SECRET
+        //Refresh Token Sonsuz süre olarak atandı.
+        //Bu yüzden Kullanıcı Oturumu kapatınca refresh Token'i yok edeceğiz.
+        const refreshToken = jwt.sign(payload,secretKey2); 
         
    
     //Kullanıcıya access token gönderildi.
