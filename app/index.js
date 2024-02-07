@@ -4,8 +4,8 @@
 // import dotenv from 'dotenv'
 
 const express = require("express")
-const jwt =  require('jsonwebtoken')
-const  dotenv =  require('dotenv')
+const jwt = require('jsonwebtoken')
+const dotenv = require('dotenv')
 
 //Bu metot'un yaptığı şey, Ortam değişkenleri dosyasının içerisindeki bütün anahtar değerleri buraya explose ediyor.
 //tüm ortam değişkenleri .env dosyası içerisinde olacak.
@@ -28,17 +28,25 @@ const user = {
 
 //Giriş servisi
 //Buraya istek atıldığında işlenecek veriler.
-app.post("/login", async(req,res)=>{
+app.post("/login", async (req, res) => {
 
     //gelen isteğin body'sinden verileri çekip değişkenlere aktarır.
-    const {email,password} = req.body; 
+    const { email, password } = req.body;
 
-    if(email !== user.email || password !==user.password){
-        return res.status(401).json({message: "Bilgiler geçersiz."})
+    if (email !== user.email || password !== user.password) {
+        return res.status(401).json({ message: "Bilgiler geçersiz." })
     }
-})
+        const payload = { email: user.email, username: user.username };
+        const secretKey = process.env.ACCESS_TOKEN_SECRET
+        //30 saniye geçerli olacak bir token oluşturuldu. Veritabanından gelen değer token key'lerine atandı.
+        const accessToken = jwt.sign(payload,secretKey,{expiresIn:"30s"});
+        
+   
+    //Kullanıcıya access token gönderildi.
+    return res.status(200).json({accessToken});
+});
 
 //Bu server'ı 5000. portta dinlemesini ister.
-app.listen(5000,()=>{
+app.listen(5000, () => {
     console.log("Server 5000. portta hazır...")
 })
