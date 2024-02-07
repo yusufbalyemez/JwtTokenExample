@@ -6,6 +6,7 @@
 const express = require("express")
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
+const { authMiddleWare } = require("./middlewares")
 
 //Bu metot'un yaptığı şey, Ortam değişkenleri dosyasının içerisindeki bütün anahtar değerleri buraya explose ediyor.
 //tüm ortam değişkenleri .env dosyası içerisinde olacak.
@@ -25,7 +26,25 @@ const user = {
     password: "1234"
 }
 
+const animalsArray = [
+    {
+        name: "Giraffe",
+        createdAt: new Date(),
+    },
+    {
+        name: "Elephant",
+        createdAt: new Date(),
+    },
+    {
+        name: "Lion",
+        createdAt: new Date(),
+    },
+]
 
+app.get("/animals", authMiddleWare, (req,res)=>{
+    console.log(req.user);
+    res.json(animalsArray);
+})
 
 //Giriş yapma işlemi; Access & Refresh Tokenlerinin oluşturulma işlemi
 app.post("/login", async (req, res) => {
@@ -34,25 +53,25 @@ app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     if (email !== user.email || password !== user.password) {
-        return res.status(401).json({ message: "Bilgiler geçersiz." })
+        return res.sendStatus(401);
     }
         const payload = { email: user.email, username: user.username };
-        const secretKey = process.env.ACCESS_TOKEN_SECRET
+    
         //30 saniye geçerli olacak bir token oluşturuldu. Veritabanından gelen değer token key'lerine atandı.
-        const accessToken = jwt.sign(payload,secretKey,{expiresIn:"30s"});
+        const accessToken = jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET,{expiresIn:"2m"});
         //jwt.io üzerinden oluşan tokene bakabilirsin. Bilgileri gösterecektir.
 
-        const secretKey2 = process.env.REFRESH_TOKEN_SECRET
         //Refresh Token Sonsuz süre olarak atandı.
         //Bu yüzden Kullanıcı Oturumu kapatınca refresh Token'i yok edeceğiz.
-        const refreshToken = jwt.sign(payload,secretKey2); 
+        const refreshToken = jwt.sign(payload,process.env.REFRESH_TOKEN_SECRET); 
         
    
     //Kullanıcıya access token gönderildi.
-    return res.status(200).json({accessToken});
+    return res.status(200).json({accessToken,refreshToken});
 });
 
 //Bu server'ı 5000. portta dinlemesini ister.
 app.listen(5000, () => {
     console.log("Server 5000. portta hazır...")
 })
+
