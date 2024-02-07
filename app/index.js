@@ -16,5 +16,5 @@ const app = express()
 
 //Bu server'ı 5000. portta dinlemesini ister.
 app.listen(5000,()=>{
-    console.log("Server 5000. portta hazır.")
+    console.log("Server 5000. portta hazır...")
 })
